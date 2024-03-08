@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-4 card shadow-lg" style="max-width: 70%;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form class="d-flex mt-4 mb-3" method="post">
+            {% csrf_token %}
+            <input class="form-control me-2" type="search" placeholder="Employee Id | Employee Name" name="search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+ 
+        {% if employees %}
+            <h5 class="text-center mt-3 mb-2">Employee Table</h5>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Employee Name</th>
+                        <th scope="col">Employee Designation</th>
+                        <th scope="col">Resume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                        <tr>
+                            <th scope="row">{{employee.id}}</th>
+                            <td>{{employee.name}}</td>
+                            <td>{{employee.designation}}</td>
+                            <td><a href="{% url 'download' employee.id %}"class="btn btn-primary generate-resume" data-toggle="modal" data-target="#resumeModal" data-employee-id="{{ employee.id }}">Download</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                No data found.
+            </div>
+        {% endif %}
+
+        <!-- Modal -->
+        <div class="modal fade" id="resumeModal" tabindex="-1" aria-labelledby="resumeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Resume is being built...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use jQuery noConflict mode
+        var $ = jQuery.noConflict();
+
+        // Your jQuery code here
+        $(document).ready(function() {
+            // Show the modal when the "Generate Resume" button is clicked
+            $('.generate-resume').on('click', function() {               
+                // Manually show the modal
+                $('#resumeModal').modal('show');
+
+                setTimeout(function() {
+                    window.location.href = '{% url "resume" %}' ;// Redirect to the download URL
+                }, 2000);
+            
+        });
+        
+    });
+    </script>
+{% endblock %}
